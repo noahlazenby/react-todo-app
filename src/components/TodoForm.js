@@ -5,36 +5,50 @@ import {
   Box, 
   Stack,
   Chip,
-  Typography
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField as MuiTextField,
+  IconButton
 } from '@mui/material';
 import { 
   Add as AddIcon, 
   Update as UpdateIcon, 
   Close as CloseIcon,
   Work as WorkIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  ShoppingCart as ShoppingIcon,
+  School as SchoolIcon,
+  Home as HomeIcon,
+  AddCircleOutline as AddCategoryIcon
 } from '@mui/icons-material';
 
-// Define categories with their properties
-const CATEGORIES = [
-  { 
-    id: 'work', 
-    label: 'Work', 
-    color: 'primary', 
-    icon: <WorkIcon fontSize="small" /> 
-  },
-  { 
-    id: 'personal', 
-    label: 'Personal', 
-    color: 'secondary', 
-    icon: <PersonIcon fontSize="small" /> 
-  }
-];
+// Default category icons mapping
+const CATEGORY_ICONS = {
+  work: <WorkIcon fontSize="small" />,
+  personal: <PersonIcon fontSize="small" />,
+  shopping: <ShoppingIcon fontSize="small" />,
+  education: <SchoolIcon fontSize="small" />,
+  home: <HomeIcon fontSize="small" />
+};
 
-function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
+// Default category colors
+const CATEGORY_COLORS = {
+  work: 'primary',
+  personal: 'secondary',
+  shopping: 'success',
+  education: 'info',
+  home: 'warning'
+};
+
+function TodoForm({ onAddTodo, currentTodo, onUpdateTodo, disabled, categories = ['personal', 'work'] }) {
   const [text, setText] = useState('');
   const [category, setCategory] = useState('personal'); // Default category
   const [isEditing, setIsEditing] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
 
   // When currentTodo changes, update the form
   useEffect(() => {
@@ -56,9 +70,9 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
     if (!text.trim()) return;
     
     if (isEditing && currentTodo) {
-      updateTodo(currentTodo.id, text, category);
+      onUpdateTodo?.(currentTodo.id, text, category);
     } else {
-      addTodo(text, category);
+      onAddTodo(text, category);
       setText(''); // Clear the input after adding
       // Keep the same category selected for convenience
     }
@@ -66,6 +80,33 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
 
   const handleCategoryChange = (categoryId) => {
     setCategory(categoryId);
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setNewCategory('');
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !categories.includes(newCategory.toLowerCase())) {
+      onAddTodo(`Created new category: ${newCategory}`, newCategory.toLowerCase());
+      setCategory(newCategory.toLowerCase());
+    }
+    handleCloseDialog();
+  };
+
+  // Get icon for a category, or default to PersonIcon if not found
+  const getCategoryIcon = (categoryId) => {
+    return CATEGORY_ICONS[categoryId] || <PersonIcon fontSize="small" />;
+  };
+
+  // Get color for a category, or default to default if not found
+  const getCategoryColor = (categoryId) => {
+    return CATEGORY_COLORS[categoryId] || 'default';
   };
 
   return (
@@ -94,7 +135,7 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
               type="submit"
               variant="contained"
               color="primary"
-              disabled={disabled}
+              disabled={disabled || !text.trim()}
               startIcon={isEditing ? <UpdateIcon /> : <AddIcon />}
               sx={{
                 height: '100%',
@@ -114,8 +155,8 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
                 onClick={() => {
                   setText('');
                   setIsEditing(false);
-                  if (currentTodo) {
-                    updateTodo(currentTodo.id, currentTodo.text, currentTodo.category); // Cancel the edit
+                  if (currentTodo && onUpdateTodo) {
+                    onUpdateTodo(currentTodo.id, currentTodo.text, currentTodo.category); // Cancel the edit
                   }
                 }}
                 sx={{
@@ -130,20 +171,46 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
         </Stack>
         
         <Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Category:
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              mb: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <span>Category:</span>
+            <IconButton 
+              size="small" 
+              color="primary" 
+              onClick={handleOpenDialog}
+              sx={{ ml: 1 }}
+            >
+              <AddCategoryIcon fontSize="small" />
+            </IconButton>
           </Typography>
-          <Stack direction="row" spacing={1}>
-            {CATEGORIES.map((cat) => (
+          
+          <Stack 
+            direction="row" 
+            spacing={1} 
+            sx={{ 
+              flexWrap: 'wrap', 
+              gap: 1,
+              '& > *': { mb: 1 }
+            }}
+          >
+            {categories.map((cat) => (
               <Chip
-                key={cat.id}
-                label={cat.label}
-                color={cat.color}
-                icon={cat.icon}
-                variant={category === cat.id ? "filled" : "outlined"}
-                onClick={() => handleCategoryChange(cat.id)}
+                key={cat}
+                label={cat.charAt(0).toUpperCase() + cat.slice(1)}
+                color={getCategoryColor(cat)}
+                icon={getCategoryIcon(cat)}
+                variant={category === cat ? "filled" : "outlined"}
+                onClick={() => handleCategoryChange(cat)}
                 sx={{ 
-                  fontWeight: category === cat.id ? 500 : 400,
+                  fontWeight: category === cat ? 500 : 400,
                   transition: 'all 0.2s',
                   '&:hover': {
                     transform: 'translateY(-2px)',
@@ -155,6 +222,36 @@ function TodoForm({ addTodo, currentTodo, updateTodo, disabled }) {
           </Stack>
         </Box>
       </Stack>
+
+      {/* Dialog for adding new category */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Add New Category</DialogTitle>
+        <DialogContent>
+          <MuiTextField
+            autoFocus
+            margin="dense"
+            id="category"
+            label="Category Name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAddCategory} 
+            color="primary"
+            disabled={!newCategory.trim()}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -1,70 +1,151 @@
-# Getting Started with Create React App
+# React Todo App with Material UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive Todo application built with React and Material UI that supports both Supabase and a custom Node.js backend.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Dual Backend Support**: Switch between Supabase and a custom Node.js backend
+- **User Authentication**: Sign up, login, and logout functionality
+- **Todo Management**: Create, read, update, and delete todos
+- **Category Support**: Organize todos by categories
+- **Material UI Design**: Beautiful and responsive UI with Material Design principles
+- **Responsive Layout**: Works on mobile, tablet, and desktop devices
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- React
+- Material UI
+- Axios for API requests
 
-### `npm test`
+### Backend Options
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Supabase**
 
-### `npm run build`
+   - Authentication
+   - PostgreSQL database
+   - Real-time updates
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **Custom Node.js Backend**
+   - Express.js
+   - JWT authentication
+   - RESTful API
+   - PostgreSQL database via Supabase client
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Project Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+react-todo-app/
+├── public/
+├── server/                   # Node.js backend
+│   ├── config/               # Configuration files
+│   │   ├── config.js       # Configuration for the frontend
+│   │   └── server.js       # Server entry point
+│   ├── controllers/          # Route controllers
+│   ├── middleware/           # Custom middleware
+│   ├── routes/               # API routes
+│   ├── utils/                # Utility functions
+│   └── test-simple.js        # Simple test script
+├── src/
+│   ├── components/           # React components
+│   │   ├── Auth.js           # Material UI auth component
+│   │   ├── ServerAuth.js     # Auth component for Node.js backend
+│   │   ├── SupabaseAuth.js   # Auth component for Supabase
+│   │   ├── TodoForm.js       # Form for creating/editing todos
+│   │   ├── TodoItem.js       # Individual todo item component
+│   │   ├── TodoList.js       # List of todos
+│   │   ├── ServerTodoList.js # Todo list for Node.js backend
+│   │   └── SupabaseTodoList.js # Todo list for Supabase
+│   ├── services/             # Service layer
+│   │   └── apiService.js     # API service for backend communication
+│   ├── App.js                # Main application component
+│   ├── index.js              # Application entry point
+│   └── supabaseClient.js     # Supabase client configuration
+└── package.json              # Project dependencies
+```
 
-### `npm run eject`
+## Getting Started
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Prerequisites
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Node.js (v14 or higher)
+- npm or yarn
+- Supabase account (for Supabase backend)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Clone the repository
 
-## Learn More
+```bash
+git clone <repository-url>
+cd react-todo-app
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. Install frontend dependencies
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm install
+```
 
-### Code Splitting
+3. Install backend dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+cd server
+npm install
+cd ..
+```
 
-### Analyzing the Bundle Size
+4. Create a `.env` file in the project root with your Supabase credentials
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+REACT_APP_SUPABASE_URL=your-supabase-url
+REACT_APP_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-### Making a Progressive Web App
+5. Create a `.env` file in the server directory
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```
+PORT=5000
+JWT_SECRET=your-jwt-secret
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_KEY=your-supabase-service-key
+```
 
-### Advanced Configuration
+### Running the Application
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. Start the frontend
 
-### Deployment
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+2. Start the backend (in a separate terminal)
 
-### `npm run build` fails to minify
+```bash
+cd server
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+3. Open your browser and navigate to `http://localhost:3000`
+
+## Usage
+
+1. **Switch Between Backends**: Use the toggle in the header to switch between Supabase and Node.js backends
+2. **Authentication**: Sign up or log in to access the todo application
+3. **Create Todos**: Add new todos with the form at the top
+4. **Categorize**: Assign categories to your todos
+5. **Manage Todos**: Mark todos as complete, edit, or delete them
+
+## Testing
+
+Run the simple test script to verify the backend is working:
+
+```bash
+cd server
+npm run test:simple
+```
+
+## License
+
+MIT

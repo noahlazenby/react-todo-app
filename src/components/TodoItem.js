@@ -8,32 +8,54 @@ import {
   Button, 
   IconButton,
   alpha,
-  Chip
+  Chip,
+  Tooltip
 } from '@mui/material';
 import { 
   Delete as DeleteIcon, 
   Edit as EditIcon,
   Work as WorkIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  ShoppingCart as ShoppingIcon,
+  School as SchoolIcon,
+  Home as HomeIcon,
+  Label as LabelIcon
 } from '@mui/icons-material';
 
-// Define categories with their properties - same as in TodoForm
-const CATEGORIES = {
-  work: { 
-    label: 'Work', 
-    color: 'primary', 
-    icon: <WorkIcon fontSize="small" /> 
-  },
-  personal: { 
-    label: 'Personal', 
-    color: 'secondary', 
-    icon: <PersonIcon fontSize="small" /> 
-  }
+// Default category icons mapping
+const CATEGORY_ICONS = {
+  work: <WorkIcon fontSize="small" />,
+  personal: <PersonIcon fontSize="small" />,
+  shopping: <ShoppingIcon fontSize="small" />,
+  education: <SchoolIcon fontSize="small" />,
+  home: <HomeIcon fontSize="small" />
 };
 
-function TodoItem({ todo, deleteTodo, toggleComplete, editTodo }) {
-  // Get category details, default to personal if not specified
-  const category = CATEGORIES[todo.category || 'personal'];
+// Default category colors
+const CATEGORY_COLORS = {
+  work: 'primary',
+  personal: 'secondary',
+  shopping: 'success',
+  education: 'info',
+  home: 'warning'
+};
+
+function TodoItem({ todo, onDelete, onToggle, onEdit }) {
+  // Get category icon, default to LabelIcon if not found
+  const getCategoryIcon = (categoryId) => {
+    return CATEGORY_ICONS[categoryId] || <LabelIcon fontSize="small" />;
+  };
+
+  // Get category color, default to default if not found
+  const getCategoryColor = (categoryId) => {
+    return CATEGORY_COLORS[categoryId] || 'default';
+  };
+
+  // Format the category label
+  const formatCategoryLabel = (category) => {
+    if (!category) return 'Uncategorized';
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  };
 
   return (
     <Card 
@@ -53,7 +75,7 @@ function TodoItem({ todo, deleteTodo, toggleComplete, editTodo }) {
         <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
           <Checkbox
             checked={todo.completed}
-            onChange={() => toggleComplete(todo.id)}
+            onChange={() => onToggle(todo.id, !todo.completed)}
             color="primary"
             sx={{ 
               p: 1, 
@@ -77,26 +99,44 @@ function TodoItem({ todo, deleteTodo, toggleComplete, editTodo }) {
             >
               {todo.text}
             </Typography>
-            <Chip
-              size="small"
-              label={category.label}
-              color={category.color}
-              icon={category.icon}
-              variant="outlined"
-              sx={{ 
-                alignSelf: 'flex-start',
-                height: '24px',
-                '& .MuiChip-label': {
-                  px: 1,
-                  fontSize: '0.75rem',
-                },
-                '& .MuiChip-icon': {
-                  fontSize: '0.875rem',
-                  ml: 0.5,
-                },
-                opacity: todo.completed ? 0.6 : 1
-              }}
-            />
+            
+            {todo.category && (
+              <Tooltip title={`Category: ${formatCategoryLabel(todo.category)}`}>
+                <Chip
+                  size="small"
+                  label={formatCategoryLabel(todo.category)}
+                  color={getCategoryColor(todo.category)}
+                  icon={getCategoryIcon(todo.category)}
+                  variant="outlined"
+                  sx={{ 
+                    alignSelf: 'flex-start',
+                    height: '24px',
+                    '& .MuiChip-label': {
+                      px: 1,
+                      fontSize: '0.75rem',
+                    },
+                    '& .MuiChip-icon': {
+                      fontSize: '0.875rem',
+                      ml: 0.5,
+                    },
+                    opacity: todo.completed ? 0.6 : 1
+                  }}
+                />
+              </Tooltip>
+            )}
+            
+            {todo.created_at && (
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ 
+                  fontSize: '0.7rem',
+                  opacity: todo.completed ? 0.6 : 0.8
+                }}
+              >
+                {new Date(todo.created_at).toLocaleString()}
+              </Typography>
+            )}
           </Box>
         </Box>
         <Box sx={{ display: 'flex', ml: 2, gap: 1 }}>
@@ -104,7 +144,7 @@ function TodoItem({ todo, deleteTodo, toggleComplete, editTodo }) {
             variant="outlined"
             size="small"
             startIcon={<EditIcon />}
-            onClick={() => editTodo(todo)}
+            onClick={() => onEdit?.(todo)}
             disabled={todo.completed}
             color="primary"
             sx={{
@@ -121,7 +161,7 @@ function TodoItem({ todo, deleteTodo, toggleComplete, editTodo }) {
           <IconButton
             size="small"
             color="error"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={() => onDelete(todo.id)}
             aria-label="delete"
             sx={{ p: 0.5 }}
           >
