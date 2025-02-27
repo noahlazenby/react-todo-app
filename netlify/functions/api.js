@@ -29,8 +29,8 @@ app.get('/', (req, res) => {
 });
 
 // Import routes
-app.use('/auth', require('../../server/routes/auth.routes'));
-app.use('/todos', require('../../server/routes/todo.routes'));
+app.use('/auth', require('./routes/auth.routes'));
+app.use('/todos', require('./routes/todo.routes'));
 
 // 404 handler
 app.use((req, res, next) => {

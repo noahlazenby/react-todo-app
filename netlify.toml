@@ -3,6 +3,10 @@
   publish = "build"
   functions = "netlify/functions"
 
+# Add plugin to install function dependencies
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
 # Handle SPA routing by redirecting all requests to index.html
 [[redirects]]
   from = "/*"
@@ -19,7 +23,7 @@
 
 [dev]
   command = "npm start" # Command to start your dev server
-  port = 3000 # Port that the dev server will be listening on
+  port = 3006 # Changed from 3000 to avoid port conflicts
   publish = "build" # Folder with the static content for _redirect file
 
 [functions]
