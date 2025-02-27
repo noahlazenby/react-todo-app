@@ -30,4 +30,5 @@
   # Directory with serverless functions, including API
   directory = "netlify/functions"
   # 30 seconds is the maximum execution time for Netlify Functions on the free tier
-  node_bundler = "esbuild" 
+  node_bundler = "esbuild"
+  external_node_modules = ["express", "cors", "helmet", "morgan", "cookie-parser", "jsonwebtoken", "bcryptjs", "@supabase/supabase-js"] 

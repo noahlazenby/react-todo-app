@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // API base URL - use environment variable or default to localhost in development
-// In production, the API will be at /.netlify/functions/api
+// In production, the API will be at /api which gets redirected to /.netlify/functions/api
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/.netlify/functions/api'
+  ? '/api'
   : process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Create axios instance with default config
