@@ -1,10 +1,15 @@
 import axios from 'axios';
 
+// Enable debug mode for troubleshooting
+const DEBUG_MODE = true;
+
 // API base URL - use environment variable or default to localhost in development
-// In production, the API will be at /api which gets redirected to /.netlify/functions/api
+// In production, the API will be at /.netlify/functions/api
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'
+  ? '/.netlify/functions/api'
   : process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+console.log('API URL:', API_URL);
 
 // Create axios instance with default config
 const api = axios.create({
@@ -19,8 +24,12 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log('Sending request to:', config.url);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Token available:', token.substring(0, 10) + '...');
+    } else {
+      console.log('No token found');
     }
     return config;
   },
@@ -29,7 +38,10 @@ api.interceptors.request.use(
 
 // Add response interceptor to handle common errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Response status:', response.status);
+    return response;
+  },
   (error) => {
     // Handle 401 Unauthorized errors (token expired, etc.)
     if (error.response && error.response.status === 401) {
@@ -37,6 +49,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       console.error('Authentication error:', error.response.data.message || 'Session expired');
     }
+    console.error('API error:', error.message, error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -60,10 +73,20 @@ export const authAPI = {
   // Login a user
   login: async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      // Use test endpoint in debug mode
+      const endpoint = DEBUG_MODE ? '/auth/login-test' : '/auth/login';
+      
+      console.log(`Using ${endpoint} endpoint for login`);
+      
+      const response = await api.post(endpoint, { email, password });
+      
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
+        console.log('Token saved to localStorage');
+      } else {
+        console.warn('No token received in login response');
       }
+      
       return response;
     } catch (error) {
       console.error('Login error:', error.response?.data?.message || error.message);
@@ -98,6 +121,21 @@ export const authAPI = {
   // Get current user
   getCurrentUser: async () => {
     try {
+      if (DEBUG_MODE) {
+        console.log('Debug mode: Returning mock user data');
+        return {
+          data: {
+            status: 'success',
+            data: {
+              user: {
+                id: '123',
+                email: 'debug@example.com'
+              }
+            }
+          }
+        };
+      }
+      
       const response = await api.get('/auth/me');
       return response;
     } catch (error) {
@@ -117,6 +155,21 @@ export const todoAPI = {
   // Get all todos
   getAllTodos: async (category = null) => {
     try {
+      if (DEBUG_MODE) {
+        console.log('Debug mode: Returning mock todos');
+        return {
+          data: {
+            status: 'success',
+            data: {
+              todos: [
+                { id: '1', text: 'Debug todo 1', completed: false, category: 'work' },
+                { id: '2', text: 'Debug todo 2', completed: true, category: 'personal' }
+              ]
+            }
+          }
+        };
+      }
+      
       const url = category ? `/todos?category=${category}` : '/todos';
       const response = await api.get(url);
       return response;
