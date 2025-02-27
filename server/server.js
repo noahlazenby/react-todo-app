@@ -17,10 +17,10 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  origin: process.env.NODE_ENV === 'production' 
+    ? '*' // Allow requests from any origin in production
+    : 'http://localhost:3000',
+  credentials: true
 }));
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies

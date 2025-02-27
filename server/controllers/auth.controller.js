@@ -263,41 +263,4 @@ exports.resendVerification = catchAsync(async (req, res, next) => {
   } catch (err) {
     return next(new AppError(`Error resending verification email: ${err.message}`, 500));
   }
-});
-
-/**
- * Test login endpoint that always succeeds (for debugging)
- */
-exports.loginTest = catchAsync(async (req, res) => {
-  // Create a mock user
-  const mockUser = {
-    id: 'test-user-123',
-    email: req.body.email || 'test@example.com'
-  };
-
-  // Create JWT token
-  const token = jwt.sign(
-    { id: mockUser.id, email: mockUser.email },
-    process.env.JWT_SECRET || 'test-secret',
-    { expiresIn: '1d' }
-  );
-
-  // Set cookie options
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  };
-
-  // Send cookie
-  res.cookie('jwt', token, cookieOptions);
-
-  // Send response
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      user: mockUser
-    }
-  });
 }); 

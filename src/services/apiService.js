@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Enable debug mode for troubleshooting
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 // API base URL - use environment variable or default to localhost in development
 // In production, the API will be at /.netlify/functions/api
