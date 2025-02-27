@@ -1,0 +1,29 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+  functions = "netlify/functions"
+
+# Handle SPA routing by redirecting all requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  conditions = {Role = ["anonymous"]}
+
+# Proxy API requests to our serverless function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[dev]
+  command = "npm start" # Command to start your dev server
+  port = 3000 # Port that the dev server will be listening on
+  publish = "build" # Folder with the static content for _redirect file
+
+[functions]
+  # Directory with serverless functions, including API
+  directory = "netlify/functions"
+  # 30 seconds is the maximum execution time for Netlify Functions on the free tier
+  node_bundler = "esbuild" 

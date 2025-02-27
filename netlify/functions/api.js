@@ -1,3 +1,4 @@
+const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -11,15 +12,10 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
-// Set port
-const PORT = process.env.PORT || 5000;
-
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? '*' // Allow requests from any origin in production
-    : 'http://localhost:3000',
+  origin: '*', // Allow requests from any origin in production
   credentials: true
 }));
 app.use(express.json()); // Parse JSON bodies
@@ -33,8 +29,8 @@ app.get('/', (req, res) => {
 });
 
 // Import routes
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/todos', require('./routes/todo.routes'));
+app.use('/auth', require('../../server/routes/auth.routes'));
+app.use('/todos', require('../../server/routes/todo.routes'));
 
 // 404 handler
 app.use((req, res, next) => {
@@ -50,9 +46,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-module.exports = app; 
+// Export the serverless function
+module.exports.handler = serverless(app); 
