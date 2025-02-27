@@ -1,13 +1,15 @@
 import axios from 'axios';
 
-// Enable debug mode for troubleshooting
-const DEBUG_MODE = false;
+// Constants
+const DEBUG_MODE = false; // Set to true to use test data for debugging
 
-// API base URL - use environment variable or default to localhost in development
-// In production, the API will be at /.netlify/functions/api
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/.netlify/functions/api'
-  : process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// API base URL
+// In development: http://localhost:5000/api
+// In production: /api (gets redirected to /.netlify/functions/api by Netlify)
+const API_URL = process.env.REACT_APP_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? '/.netlify/functions/api' // Direct URL to Netlify Functions 
+    : 'http://localhost:5000/api');
 
 console.log('API URL:', API_URL);
 

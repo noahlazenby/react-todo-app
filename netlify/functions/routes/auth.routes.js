@@ -13,6 +13,8 @@ router.post('/resend-verification', authController.resendVerification);
 
 // Test login endpoint for development/debugging
 router.post('/login-test', (req, res) => {
+  console.log('[DEBUG] Test login endpoint called with:', req.body.email);
+  
   // Create a test token
   const token = jwt.sign(
     { id: req.body.email || 'test@example.com', email: req.body.email || 'test@example.com' },

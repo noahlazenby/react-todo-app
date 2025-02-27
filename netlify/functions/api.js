@@ -18,9 +18,11 @@ const app = express();
 app.use(helmet()); // Security headers
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://tinytodolist.netlify.app', '*'] 
+    ? ['https://tinytodolist.netlify.app', 'https://*.netlify.app', 'http://localhost:3000'] 
     : 'http://localhost:3000',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -30,8 +32,13 @@ app.use(morgan('dev')); // HTTP request logger
 // Debug middleware to log all requests
 app.use((req, res, next) => {
   console.log(`[DEBUG] ${req.method} ${req.path}`);
-  console.log('[DEBUG] Headers:', JSON.stringify(req.headers));
-  console.log('[DEBUG] Body:', JSON.stringify(req.body));
+  
+  // Only log headers and body in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[DEBUG] Headers:', JSON.stringify(req.headers));
+    console.log('[DEBUG] Body:', JSON.stringify(req.body));
+  }
+  
   next();
 });
 
@@ -46,15 +53,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Check if route files exist
-const routesDir = path.join(__dirname, 'routes');
-const authRoutesPath = path.join(routesDir, 'auth.routes.js');
-const todoRoutesPath = path.join(routesDir, 'todo.routes.js');
-
-console.log('[DEBUG] Routes directory exists:', fs.existsSync(routesDir));
-console.log('[DEBUG] Auth routes file exists:', fs.existsSync(authRoutesPath));
-console.log('[DEBUG] Todo routes file exists:', fs.existsSync(todoRoutesPath));
-
 // Import routes
 try {
   const authRoutes = require('./routes/auth.routes');
@@ -62,6 +60,8 @@ try {
   console.log('[DEBUG] Auth routes loaded successfully');
 } catch (error) {
   console.error('[ERROR] Failed to load auth routes:', error);
+  
+  // Fallback middleware for auth routes
   app.use('/auth', (req, res) => {
     res.status(500).json({ 
       message: 'Auth routes failed to load',
@@ -76,6 +76,8 @@ try {
   console.log('[DEBUG] Todo routes loaded successfully');
 } catch (error) {
   console.error('[ERROR] Failed to load todo routes:', error);
+  
+  // Fallback middleware for todo routes
   app.use('/todos', (req, res) => {
     res.status(500).json({ 
       message: 'Todo routes failed to load',
@@ -97,11 +99,11 @@ app.use((req, res, next) => {
 // Error handler
 app.use((err, req, res, next) => {
   console.error('[ERROR]', err.stack);
-  res.status(err.statusCode || 500).json({
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
     message: err.message || 'Internal Server Error',
-    error: process.env.NODE_ENV === 'production' ? {} : err,
-    path: req.path,
-    method: req.method
+    status: 'error',
+    error: process.env.NODE_ENV === 'production' ? {} : err
   });
 });
 
