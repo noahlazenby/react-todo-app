@@ -7,19 +7,19 @@
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
 
+# Proxy API requests to our serverless function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
 # Handle SPA routing by redirecting all requests to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = false
-  conditions = {Role = ["anonymous"]}
-
-# Proxy API requests to our serverless function
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
 
 [dev]
   command = "npm start" # Command to start your dev server

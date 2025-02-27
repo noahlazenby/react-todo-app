@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "mkdir -p netlify/functions/routes netlify/functions/controllers netlify/functions/middleware netlify/functions/utils netlify/functions/config && cp -r server/routes/* netlify/functions/routes/ && cp -r server/controllers/* netlify/functions/controllers/ && cp -r server/middleware/* netlify/functions/middleware/ && cp -r server/utils/* netlify/functions/utils/ && cp -r server/config/* netlify/functions/config/",
+    "prebuild": "node ./scripts/copy-server-files.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
